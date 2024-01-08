@@ -1,5 +1,9 @@
 package com.marolix.session.onetoone.service;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.engine.transaction.jta.platform.spi.JtaPlatformProvider;
@@ -7,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.marolix.session.onetoone.dto.AddressDTO;
 import com.marolix.session.onetoone.dto.EmployeeDTO;
 import com.marolix.session.onetoone.dto.PassportDTO;
+import com.marolix.session.onetoone.entity.Address;
 import com.marolix.session.onetoone.entity.Employee;
 import com.marolix.session.onetoone.entity.Passport;
+import com.marolix.session.onetoone.repository.AddressRepository;
 import com.marolix.session.onetoone.repository.EmployeeRepository;
 import com.marolix.session.onetoone.repository.PassportRepository;
 
@@ -22,6 +29,9 @@ public class EmployeeServieImpl implements EmployeeService {
 	private EmployeeRepository employeeRepository;
 	@Autowired
 	private PassportRepository passportRepository;
+
+	@Autowired
+	private AddressRepository addressRepository;
 
 	@Override
 
@@ -65,9 +75,31 @@ public class EmployeeServieImpl implements EmployeeService {
 	public String deleteEmployee(Long empid) {
 		Optional<Employee> oemp = employeeRepository.findById(empid);
 		Employee empd = oemp.orElseThrow(() -> new RuntimeException("no emp found with id " + empid));
-		
+
 		employeeRepository.delete(empd);
-		return "employee deleted successfully wit id "+empid;
+		return "employee deleted successfully wit id " + empid;
+	}
+
+	@Override
+	public String addAddress(AddressDTO addressDTO, Long empID) {
+
+		Optional<Employee> optEMp = employeeRepository.findById(empID);
+		Employee emp = optEMp.orElseThrow(() -> new RuntimeException("No employee found with id " + empID));
+
+		Address address = new Address();
+		address.setHno(addressDTO.getHno());
+		address.setStreet(addressDTO.getStreet());
+		address.setCity(addressDTO.getCity());
+		address.setState(addressDTO.getState());
+		address.setPincode(addressDTO.getPincode());
+		// address.setEmployee(emp);
+		// Long adId = addressRepository.save(address).getAddressId();
+		List<Address> addlist = new ArrayList<Address>();
+		addlist.add(address);
+		emp.setAddress(addlist);
+
+		Long adId = employeeRepository.save(emp).getAddress().get(0).getAddressId();
+		return "Address added successfully with id " + adId;
 	}
 
 }

@@ -17,7 +17,8 @@ public class OneToOneDemoApplication {
 		// c.addEmployee();
 		// c.updatePassportDetails();
 		// c.deletePassportDetails();
-		c.deleteEmployeeDetails();
+		// c.deleteEmployeeDetails();
+		 c.addAddress();
 	}
 
 }

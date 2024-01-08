@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Controller;
 
+import com.marolix.session.onetoone.dto.AddressDTO;
 import com.marolix.session.onetoone.dto.EmployeeDTO;
 import com.marolix.session.onetoone.dto.PassportDTO;
 import com.marolix.session.onetoone.service.EmployeeService;
@@ -55,7 +56,7 @@ public class EmployeeController {
 		String s = employeeService.deletePassport(pid);
 		System.out.println(s);
 	}
-	
+
 	public void deleteEmployeeDetails() {
 
 		Scanner sc = new Scanner(System.in);
@@ -65,6 +66,27 @@ public class EmployeeController {
 
 		String s = employeeService.deleteEmployee(pid);
 		System.out.println(s);
+	}
+
+	public void addAddress() {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("enter emp Id");
+		Long empId = sc.nextLong();
+		System.out.println("enter address details");
+		System.out.println("enter hno");
+		String hno = sc.nextLine();
+		System.out.println("enter street");
+		String street = sc.nextLine();
+		System.out.println("enter city");
+		String city = sc.nextLine();
+		System.out.println("enter state");
+		String state = sc.nextLine();
+		System.out.println("enter pincode");
+		String pincode = sc.nextLine();
+
+		AddressDTO adto = new AddressDTO(hno, street, city, state, pincode);
+		String scMsg = employeeService.addAddress(adto, empId);
+		System.out.println(scMsg);
 	}
 
 }
