@@ -5,12 +5,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import javax.management.RuntimeErrorException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.engine.transaction.jta.platform.spi.JtaPlatformProvider;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
 import com.marolix.session.onetoone.dto.AddressDTO;
 import com.marolix.session.onetoone.dto.EmployeeDTO;
 import com.marolix.session.onetoone.dto.PassportDTO;
@@ -24,7 +33,7 @@ import com.marolix.session.onetoone.repository.PassportRepository;
 @Service(value = "employeeService")
 @Transactional
 public class EmployeeServieImpl implements EmployeeService {
-
+	private Log logger = LogFactory.getLog(getClass());
 	@Autowired
 	private EmployeeRepository employeeRepository;
 	@Autowired
@@ -100,6 +109,47 @@ public class EmployeeServieImpl implements EmployeeService {
 
 		Long adId = employeeRepository.save(emp).getAddress().get(0).getAddressId();
 		return "Address added successfully with id " + adId;
+	}
+
+	@Override
+	public List<AddressDTO> fetchingBySort(String state) {
+		logger.info("sert method called in service");
+		Sort sort = Sort.by(state).descending().and(Sort.by("pincode").ascending());
+		logger.info("after sorting  in service");
+		List<Address> addressesAfterSorting = addressRepository.findAll(sort);
+//		String hno2, String street2, String city2, String state2, String pincode2
+		return addressesAfterSorting.stream().map(a -> new AddressDTO(a.getAddressId().intValue(), a.getHno(),
+				a.getStreet(), a.getCity(), a.getState(), a.getPincode())).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AddressDTO> fetchByPaging(int pgNo, int noOfEntities) {
+		logger.info("service meethod called for pagination");
+		Pageable pageable = PageRequest.of(pgNo, noOfEntities);
+		logger.info("Pageable object created successfully");
+		Page<Address> page = addressRepository.findAll(pageable);
+		List<Address> addresses = null;
+		if (page.hasContent()) {
+			addresses = (page.getContent());
+		}
+		if (addresses != null)
+			return addresses.stream().map(a -> new AddressDTO(a.getAddressId().intValue(), a.getHno(), a.getStreet(),
+					a.getCity(), a.getState(), a.getPincode())).collect(Collectors.toList());
+		else
+			throw new RuntimeException("No addresses found");
+	}
+
+	@Override
+	public List<EmployeeDTO> allEmployees() {
+		Iterable<Employee> allEmployees = employeeRepository.findAll();
+
+		List<EmployeeDTO> empDtos = new ArrayList<EmployeeDTO>();
+
+		allEmployees.forEach(
+				e -> empDtos.add(new EmployeeDTO(e.getEmpId(), e.getEmpName(), e.getDesignation(), e.getSalary())));
+		if (empDtos.isEmpty())
+			throw new RuntimeException("no employees found");
+		return empDtos;
 	}
 
 }

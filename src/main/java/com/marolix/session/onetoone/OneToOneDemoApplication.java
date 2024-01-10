@@ -18,7 +18,11 @@ public class OneToOneDemoApplication {
 		// c.updatePassportDetails();
 		// c.deletePassportDetails();
 		// c.deleteEmployeeDetails();
-		 c.addAddress();
+		// c.addAddress();
+		// c.sortBYColumn();
+		//c.doPaging();
+		
+		//c.viewEmployees();
 	}
 
 }

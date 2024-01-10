@@ -20,9 +20,9 @@ public class Address {
 	private String state;
 	private String city;
 	private String pincode;
-//	@ManyToOne(cascade = CascadeType.ALL)
+//	@ManyToOne
 //	@JoinColumn(name = "employee_id")
-	//private Employee employee;
+//	private Employee employee;
 
 	public Long getAddressId() {
 		return addressId;

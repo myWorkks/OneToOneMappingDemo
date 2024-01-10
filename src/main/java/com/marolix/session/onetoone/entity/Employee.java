@@ -32,7 +32,7 @@ public class Employee {
 	private Passport passport;
 
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "employee_id")
+	@JoinColumn(name = "employee_id", nullable=false, updatable=false)
 	
 	private List<Address> address;
 

@@ -6,6 +6,14 @@ public class EmployeeDTO {
 	private String designation;
 	private Float salaray;
 
+	public EmployeeDTO(Long empId, String empName, String designation, Float salaray) {
+		super();
+		this.empId = empId;
+		this.empName = empName;
+		this.designation = designation;
+		this.salaray = salaray;
+	}
+
 	public EmployeeDTO(String name, String designation2, Float salary) {
 		this.empName = name;
 		this.designation = designation2;
@@ -42,6 +50,12 @@ public class EmployeeDTO {
 
 	public void setSalaray(Float salaray) {
 		this.salaray = salaray;
+	}
+
+	@Override
+	public String toString() {
+		return "EmployeeDTO [empId=" + empId + ", empName=" + empName + ", designation=" + designation + ", salaray="
+				+ salaray + "]";
 	}
 
 }

@@ -1,19 +1,20 @@
 package com.marolix.session.onetoone.dto;
 
 public class AddressDTO {
-
+	private Integer addressId;
 	private String hno;
 	private String street;
 	private String city;
 	private String state;
 	private String pincode;
 
-	public AddressDTO(String hno2, String street2, String city2, String state2, String pincode2) {
+	public AddressDTO(Integer addressId, String hno2, String street2, String city2, String state2, String pincode2) {
 		this.hno = hno2;
 		this.street = street2;
 		this.city = city2;
 		this.state = state2;
 		this.pincode = pincode2;
+		this.addressId = addressId;
 	}
 
 	public String getHno() {
@@ -55,5 +56,13 @@ public class AddressDTO {
 	public void setPincode(String pincode) {
 		this.pincode = pincode;
 	}
+
+	@Override
+	public String toString() {
+		return "AddressDTO [addressId=" + addressId + ", hno=" + hno + ", street=" + street + ", city=" + city
+				+ ", state=" + state + ", pincode=" + pincode + "]";
+	}
+
+	
 
 }
