@@ -1,15 +1,26 @@
 package com.marolix.session.onetoone.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,14 +30,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.marolix.session.onetoone.dto.AddressDTO;
 import com.marolix.session.onetoone.dto.EmployeeDTO;
 import com.marolix.session.onetoone.dto.PassportDTO;
+import com.marolix.session.onetoone.exception.EmployeeManagementException;
 import com.marolix.session.onetoone.service.EmployeeService;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 //@Controller
 //@ResponseBody
 @RestController
 @RequestMapping(value = "base-url")
+@Validated
 public class EmployeeController {
 	Log logger = LogFactory.getLog(this.getClass());
 	@Autowired
@@ -51,44 +64,108 @@ public class EmployeeController {
 
 	}
 
-	public void addEmployee() {
-		Scanner sc = new Scanner(System.in);
-		System.out.println("enter employee details");
-		System.out.println("enter name");
-		String name = sc.nextLine();
-		System.out.println("enter designation");
-		String designation = sc.next();
-		System.out.println("enter salary");
-		Float salary = sc.nextFloat();
-		EmployeeDTO dto = new EmployeeDTO(name, designation, salary);
-		String succ = employeeService.addEmployee(dto);
-		System.out.println(succ);
+	@GetMapping(value = "/demo")
+	public String demoMethodForMultipleRequestParams(@RequestParam String fName, @RequestParam String lName,
+			@RequestParam String email, @RequestParam String phNumber, @RequestParam String street) {
+
+		logger.info("demo method called");
+		System.out.println(String.format(
+				"printing method paramters --> fName - %s,lNAme -%s, email -%s,phnNumber - %s ,street -%s ", fName,
+				lName, email, phNumber, street));
+		return "demo method called successfully";
 	}
 
-	public void updatePassportDetails() {
+	@GetMapping(value = "/login")
+	public String demologin(@RequestParam String userName, @RequestParam String password) {
 
-		Scanner sc = new Scanner(System.in);
-		System.out.println("enter passport details");
-		System.out.println("enter number");
-		String name = sc.next();
+		logger.info("demo method called");
 
-		PassportDTO p = new PassportDTO();
-		p.setPassportNumber(name);
-		System.out.println("enter empId");
-		long empid = sc.nextLong();
-		String s = employeeService.addPossportDetails(empid, p);
-		System.out.println(s);
+		return "login get method called successfully "
+				+ String.format("printing method paramters --> uNme - %s,pswwd -%s", userName, password);
 	}
 
-	public void deletePassportDetails() {
+	@PostMapping(value = "/login")
+	public String demoPostlogin(@RequestParam String userName, @RequestParam String password) {
 
-		Scanner sc = new Scanner(System.in);
-		System.out.println("enter passport details");
-		System.out.println("enter number");
-		long pid = sc.nextLong();
+		logger.info("demo method called");
+
+		return "login post method called successfully "
+				+ String.format("printing method paramters --> uNme - %s,pswwd -%s", userName, password);
+	}
+
+	@PostMapping(value = "/demo")
+	public String demoMethodForMultipleRequestParams1(@RequestParam(required = false) String fName,
+			@RequestParam(required = false) String lName, @RequestParam(required = false) String email,
+			@RequestParam(required = false) String phNumber, @RequestParam(required = false) String street) {
+
+		logger.info("demo method called");
+		System.out.println();
+		return "post demo method called successfully" + String.format(
+				"printing method paramters --> fName - %s,lNAme -%s, email -%s,phnNumber - %s ,street -%s ", fName,
+				lName, email, phNumber, street);
+	}
+
+	@PostMapping(value = "add-employee")
+	public String addEmployee(@Valid @RequestBody EmployeeDTO dto) {
+		try {
+			logger.info("add employee called in controller");
+			logger.info("calling service method with dto " + dto);
+			String succ = employeeService.addEmployee(dto);
+			return succ;
+		} catch (Exception e) {
+			if (e instanceof MethodArgumentNotValidException) {
+				MethodArgumentNotValidException e1 = (MethodArgumentNotValidException) e;
+				String error1 = e1.getBindingResult().getAllErrors().stream()
+						.map((ObjectError error) -> error.getDefaultMessage()).collect(Collectors.joining(", "));
+				System.out.println(error1);
+				return error1;
+			} else
+				return null;
+		}
+
+		// code for reference
+//		Scanner sc = new Scanner(System.in);
+//		System.out.println("enter employee details");
+//		System.out.println("enter name");
+//		String name = sc.nextLine();
+//		System.out.println("enter designation");
+//		String designation = sc.next();
+//		System.out.println("enter salary");
+//		Float salary = sc.nextFloat();
+//		EmployeeDTO dto = new EmployeeDTO(name, designation, salary);
+	}
+
+	@PutMapping(value = "update-passport")
+	public String updatePassportDetails(@Valid @ModelAttribute PassportDTO passportDto, @RequestParam Long empId)
+			throws IOException {
+		logger.info("update passport method called");
+		logger.info("empId->" + empId + "passport details " + passportDto);
+		logger.info("printing file name " + passportDto.getPassprtImage().getOriginalFilename());
+
+		try {
+			return employeeService.addPossportDetails(empId, passportDto);
+		} catch (EmployeeManagementException e) {
+			return e.getMessage();
+
+		}
+
+		//
+//		Scanner sc = new Scanner(System.in);
+//		System.out.println("enter passport details");
+//		System.out.println("enter number");
+//		String name = sc.next();
+//
+//		PassportDTO p = new PassportDTO();
+//		p.setPassportNumber(name);
+//		System.out.println("enter empId");
+//		long empid = sc.nextLong();
+	}
+
+	@DeleteMapping(value = "/del-passport")
+	public String deletePassportDetails(@RequestParam Long pid) throws EmployeeManagementException {
 
 		String s = employeeService.deletePassport(pid);
-		System.out.println(s);
+		return s;
 	}
 
 	public void deleteEmployeeDetails() {
@@ -131,6 +208,7 @@ public class EmployeeController {
 		return employeeService.fetchingBySort(colName);
 
 	}
+
 //url=/page-display/pgSize/5/pgNo/0
 	@GetMapping(value = "/page-display/pgSize/{pgSize1}/pgNo/{pgNo}")
 	public List<AddressDTO> doPaging(@PathVariable(value = "pgNo") Integer pgNo,

@@ -1,10 +1,31 @@
 package com.marolix.session.onetoone.dto;
 
+import java.util.List;
+
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 public class EmployeeDTO {
+	MethodArgumentNotValidException v;
 	private Long empId;
-	private String empName;
+	@NotNull(message = "please provide employee name")
+	@Pattern(regexp = "[a-zA-z]+ ( [a-zA-z]+)*", message = "please provide a valid name ")
+	private String empName;// EmpName
 	private String designation;
-	private Float salaray;
+	@Min(value = 5000)
+	private Float salaray;// salary
+	private List<AddressDTO> addressDTO;
+
+	public List<AddressDTO> getAddressDTO() {
+		return addressDTO;
+	}
+
+	public void setAddressDTO(List<AddressDTO> addressDTO) {
+		this.addressDTO = addressDTO;
+	}
 
 	public EmployeeDTO(Long empId, String empName, String designation, Float salaray) {
 		super();
@@ -18,6 +39,11 @@ public class EmployeeDTO {
 		this.empName = name;
 		this.designation = designation2;
 		this.salaray = salary;
+	}
+
+	public EmployeeDTO() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	public Long getEmpId() {
@@ -55,7 +81,7 @@ public class EmployeeDTO {
 	@Override
 	public String toString() {
 		return "EmployeeDTO [empId=" + empId + ", empName=" + empName + ", designation=" + designation + ", salaray="
-				+ salaray + "]";
+				+ salaray + ", addressDTO=" + addressDTO + "]";
 	}
 
 }

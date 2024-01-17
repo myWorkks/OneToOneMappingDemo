@@ -8,6 +8,11 @@ public class AddressDTO {
 	private String state;
 	private String pincode;
 
+	public AddressDTO() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public AddressDTO(Integer addressId, String hno2, String street2, String city2, String state2, String pincode2) {
 		this.hno = hno2;
 		this.street = street2;

@@ -7,6 +7,6 @@ import com.marolix.session.onetoone.entity.Employee;
 
 public interface EmployeeRepository extends CrudRepository<Employee, Long> {
 //public interface EmployeeRepository extends PagingAndSortingRepository<Employee, Long> {
-
+//public Employee findByEmail(String email);
 	public Employee findByPassportPassportId(long id);
 }

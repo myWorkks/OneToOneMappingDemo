@@ -1,5 +1,6 @@
 package com.marolix.session.onetoone.service;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import com.marolix.session.onetoone.dto.PassportDTO;
 import com.marolix.session.onetoone.entity.Address;
 import com.marolix.session.onetoone.entity.Employee;
 import com.marolix.session.onetoone.entity.Passport;
+import com.marolix.session.onetoone.exception.EmployeeManagementException;
 import com.marolix.session.onetoone.repository.AddressRepository;
 import com.marolix.session.onetoone.repository.EmployeeRepository;
 import com.marolix.session.onetoone.repository.PassportRepository;
@@ -45,7 +47,7 @@ public class EmployeeServieImpl implements EmployeeService {
 	@Override
 
 	public String addEmployee(EmployeeDTO dto) {
-		Employee e = new Employee();// new entity
+		Employee e = new Employee();
 		e.setEmpName(dto.getEmpName());
 		e.setDesignation(dto.getDesignation());
 		e.setSalary(dto.getSalaray());
@@ -55,12 +57,15 @@ public class EmployeeServieImpl implements EmployeeService {
 	}
 
 	@Override
-	public String addPossportDetails(Long emp, PassportDTO dto) {
+	public String addPossportDetails(Long emp, PassportDTO dto) throws IOException, EmployeeManagementException {
 		Optional<Employee> oemp = employeeRepository.findById(emp);
-		Employee empd = oemp.orElseThrow(() -> new RuntimeException("no emp found with id " + emp));
+		Employee empd = oemp.orElseThrow(() -> new EmployeeManagementException("no emp found with id " + emp));
 
 		Passport p = new Passport();
 		p.setPassportNumber(dto.getPassportNumber());
+		p.setExpiryDate(dto.getPassportExpiryDate());
+		p.setDateOfIssue(dto.getPasprtIssueDate());
+		p.setPassImg(dto.getPassprtImage().getBytes());
 		empd.setPassport(p);
 
 		long id = employeeRepository.save(empd).getPassport().getPassportId();
@@ -68,10 +73,10 @@ public class EmployeeServieImpl implements EmployeeService {
 	}
 
 	@Override
-	public String deletePassport(Long passid) {
+	public String deletePassport(Long passid) throws EmployeeManagementException {
 		Employee emp = employeeRepository.findByPassportPassportId(passid);
 		if (emp == null)
-			throw new RuntimeException("mo employee associated with provided passport id " + passid);
+			throw new EmployeeManagementException("mo employee associated with provided passport id " + passid);
 		emp.setPassport(null);
 		employeeRepository.save(emp);
 		Optional<Passport> opt = passportRepository.findById(passid);
