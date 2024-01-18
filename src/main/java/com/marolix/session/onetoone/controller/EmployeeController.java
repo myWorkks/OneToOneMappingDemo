@@ -34,6 +34,9 @@ import com.marolix.session.onetoone.exception.EmployeeManagementException;
 import com.marolix.session.onetoone.service.EmployeeService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 
 //@Controller
 //@ResponseBody
@@ -107,23 +110,15 @@ public class EmployeeController {
 
 	@PostMapping(value = "add-employee")
 	public String addEmployee(@Valid @RequestBody EmployeeDTO dto) {
-		try {
-			logger.info("add employee called in controller");
-			logger.info("calling service method with dto " + dto);
-			String succ = employeeService.addEmployee(dto);
-			return succ;
-		} catch (Exception e) {
-			if (e instanceof MethodArgumentNotValidException) {
-				MethodArgumentNotValidException e1 = (MethodArgumentNotValidException) e;
-				String error1 = e1.getBindingResult().getAllErrors().stream()
-						.map((ObjectError error) -> error.getDefaultMessage()).collect(Collectors.joining(", "));
-				System.out.println(error1);
-				return error1;
-			} else
-				return null;
-		}
 
-		// code for reference
+		logger.info("add employee called in controller");
+		logger.info("calling service method with dto " + dto);
+		String succ = employeeService.addEmployee(dto);
+		return succ;
+
+	}
+
+	// code for reference
 //		Scanner sc = new Scanner(System.in);
 //		System.out.println("enter employee details");
 //		System.out.println("enter name");
@@ -133,20 +128,19 @@ public class EmployeeController {
 //		System.out.println("enter salary");
 //		Float salary = sc.nextFloat();
 //		EmployeeDTO dto = new EmployeeDTO(name, designation, salary);
-	}
+	
 
 	@PutMapping(value = "update-passport")
-	public String updatePassportDetails(@Valid @ModelAttribute PassportDTO passportDto, @RequestParam Long empId)
-			throws IOException {
+	public String updatePassportDetails(@Valid @ModelAttribute PassportDTO passportDto,
+			@Valid @Pattern(regexp = "[1-9][0-9]*", message = "please provide a valid employee id") @RequestParam String empId)
+			throws IOException, NumberFormatException, EmployeeManagementException {
 		logger.info("update passport method called");
 		logger.info("empId->" + empId + "passport details " + passportDto);
 		logger.info("printing file name " + passportDto.getPassprtImage().getOriginalFilename());
 
-		try {
-			return employeeService.addPossportDetails(empId, passportDto);
-		} catch (EmployeeManagementException e) {
-			return e.getMessage();
-
+	
+			return employeeService.addPossportDetails(Long.valueOf(empId), passportDto);
+		
 		}
 
 		//
@@ -159,7 +153,7 @@ public class EmployeeController {
 //		p.setPassportNumber(name);
 //		System.out.println("enter empId");
 //		long empid = sc.nextLong();
-	}
+	
 
 	@DeleteMapping(value = "/del-passport")
 	public String deletePassportDetails(@RequestParam Long pid) throws EmployeeManagementException {
@@ -211,7 +205,8 @@ public class EmployeeController {
 
 //url=/page-display/pgSize/5/pgNo/0
 	@GetMapping(value = "/page-display/pgSize/{pgSize1}/pgNo/{pgNo}")
-	public List<AddressDTO> doPaging(@PathVariable(value = "pgNo") Integer pgNo,
+	public List<AddressDTO> doPaging(
+			@Valid @Min(value = 1, message = "Please provide valid pg number") @PathVariable(value = "pgNo") Integer pgNo,
 			@PathVariable(name = "pgSize1") Integer pgSize) {
 		logger.info(String.format("pagination method has called with pg no %d and page size %d", pgNo, pgSize));
 		return employeeService.fetchByPaging(pgNo, pgSize);

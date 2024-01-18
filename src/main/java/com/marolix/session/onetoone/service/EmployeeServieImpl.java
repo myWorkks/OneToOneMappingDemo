@@ -60,14 +60,22 @@ public class EmployeeServieImpl implements EmployeeService {
 	public String addPossportDetails(Long emp, PassportDTO dto) throws IOException, EmployeeManagementException {
 		Optional<Employee> oemp = employeeRepository.findById(emp);
 		Employee empd = oemp.orElseThrow(() -> new EmployeeManagementException("no emp found with id " + emp));
+		Passport p = null;
+		if (empd.getPassport() == null) {
+			p = new Passport();
+			p.setPassportNumber(dto.getPassportNumber());
+			p.setExpiryDate(dto.getPassportExpiryDate());
+			p.setDateOfIssue(dto.getPasprtIssueDate());
+			p.setPassImg(dto.getPassprtImage().getBytes());
 
-		Passport p = new Passport();
-		p.setPassportNumber(dto.getPassportNumber());
-		p.setExpiryDate(dto.getPassportExpiryDate());
-		p.setDateOfIssue(dto.getPasprtIssueDate());
-		p.setPassImg(dto.getPassprtImage().getBytes());
+		} else {
+			p = empd.getPassport();
+			p.setPassportNumber(dto.getPassportNumber());
+			p.setExpiryDate(dto.getPassportExpiryDate());
+			p.setDateOfIssue(dto.getPasprtIssueDate());
+			p.setPassImg(dto.getPassprtImage().getBytes());
+		}
 		empd.setPassport(p);
-
 		long id = employeeRepository.save(empd).getPassport().getPassportId();
 		return "employee passprt updated successfully " + id;
 	}

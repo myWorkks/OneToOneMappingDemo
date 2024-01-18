@@ -9,13 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class EmployeeDTO {
-	MethodArgumentNotValidException v;
+//	MethodArgumentNotValidException v;
 	private Long empId;
 	@NotNull(message = "please provide employee name")
-	@Pattern(regexp = "[a-zA-z]+ ( [a-zA-z]+)*", message = "please provide a valid name ")
+//	@Pattern(regexp = "[a-zA-z]+ ( [a-zA-z]+)*", message = "please provide a valid name ")
 	private String empName;// EmpName
 	private String designation;
-	@Min(value = 5000)
+	//@Min(value = 5000)
 	private Float salaray;// salary
 	private List<AddressDTO> addressDTO;
 
